@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import auth
+from django.contrib.auth import logout
 
 def signup(request):
     # ? Cek Request Method dari User
@@ -28,9 +29,20 @@ def signup(request):
         return render(request, 'accounts/signup.html')
 
 def signin(request):
-    return render(request, 'accounts/signin.html')
+    # ? Cek Request Method dari User
+    if(request.method == 'POST'):
+        user = auth.authenticate(username=request.POST.get('username'), password=request.POST.get('password'))
+        if user is not None:
+            auth.login(request, user)
+            return redirect('home')
+        else:
+            return render(request, 'accounts/signin.html', {
+                'error':'Username or Password is Incorrect'
+            })
+    else:    
+        return render(request, 'accounts/signin.html')
 
 def logout(request):
-    # TODO : Need to route to homepage
-    # TODO : Dont Forget to Logout 
-    return render(request, 'accounts/signup.html')
+    if(request.method == 'POST'):
+        auth.logout(request)
+        return redirect('home')
